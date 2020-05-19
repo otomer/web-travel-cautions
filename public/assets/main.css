@@ -1,0 +1,306 @@
+[data-level="1"] {
+  background: #163b72 !important;
+}
+[data-level="2"] {
+  background: #f3c876 !important;
+}
+[data-level="3"] {
+  background: #f29f41 !important;
+}
+[data-level="4"] {
+  background: #ea3324 !important;
+}
+
+@import url("https://fonts.googleapis.com/css?family=Montserrat:100,400&display=swap");
+
+a {
+  color: white;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+#footer {
+  bottom: 15px;
+  font-size: 13px;
+  left: 50%;
+  margin: 0 auto;
+  position: fixed;
+  transform: translate(-50%, -50%);
+}
+@keyframes random-background {
+  20% {
+    background: #41c4de;
+  }
+  40% {
+    background: #8cc73f;
+  }
+  60% {
+    background: #f3d333;
+  }
+  80% {
+    background: #f78e56;
+  }
+  100% {
+    background: #8b008b;
+  }
+}
+body {
+  animation: random-background 14s infinite;
+  animation-direction: alternate;
+  background: #42c4de;
+  font-family: "Montserrat", sans-serif;
+}
+input {
+  border: 2px #ccd4d0 solid;
+  display: block;
+  height: 37px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 4px;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 4px;
+  transition: 0.3s;
+  width: 222px;
+}
+button {
+  background-color: #333333;
+  border: 0px;
+  border-radius: 3px;
+  color: white;
+  cursor: pointer;
+  display: block;
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  height: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  transition: 0.3s;
+  width: 238px;
+}
+input:focus {
+  border: 2px black solid;
+}
+img {
+  display: block;
+  filter: invert(99%) sepia(95%) saturate(0%) hue-rotate(33deg) brightness(104%)
+    contrast(101%);
+  height: 89.9851px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 255px;
+}
+input[type="text"] {
+  color: black;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-align: center;
+}
+input::-webkit-input-placeholder {
+  color: #b5b5b5;
+  font-family: "Montserrat", sans-serif;
+}
+
+input:-ms-input-placeholder {
+  color: #b5b5b5;
+  font-family: "Montserrat", sans-serif;
+}
+
+input:-moz-placeholder {
+  color: #b5b5b5;
+  font-family: "Montserrat", sans-serif;
+}
+
+input::-moz-placeholder {
+  color: #b5b5b5;
+  font-family: "Montserrat", sans-serif;
+}
+input + button {
+  margin-top: 8px;
+}
+
+* {
+  color: white;
+  font-weight: normal;
+  text-align: center;
+}
+h1 {
+  font-size: 40px;
+}
+h3 {
+  font-size: 20px;
+}
+#top {
+  height: 350px;
+  width: 550px;
+
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  position: absolute; /*it can be fixed too*/
+  right: 0;
+  top: 0;
+
+  /*this to solve "the content will not be cut when the window is smaller than the content": */
+  max-height: 100%;
+  max-width: 100%;
+  overflow: auto;
+}
+
+/* Autocomplete */
+.autocomplete-suggestions {
+  background: #fff;
+  border: 1px solid #999;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  overflow: auto;
+  text-align: left;
+}
+.autocomplete-suggestion {
+  color: black;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 8px;
+  text-align: left;
+  white-space: nowrap;
+}
+.autocomplete-selected {
+  background: #f0f0f0;
+}
+.autocomplete-suggestions strong {
+  color: #3399ff;
+  font-weight: normal;
+}
+.autocomplete-group {
+  padding: 2px 5px;
+}
+.autocomplete-group strong {
+  border-bottom: 1px solid #000;
+  display: block;
+}
+
+.bubble {
+  background-color: #f7f7f7;
+  border: 1px solid #c4c4c4;
+  position: absolute;
+
+  border-radius: 10px;
+  color: #333;
+  text-align: center;
+}
+.bubble-main {
+  display: inline;
+  display: inline-block;
+  zoom: 1;
+
+  color: black;
+  font-size: 12px;
+  padding: 15px 20px;
+}
+.bubble-main p {
+  line-height: 1.7;
+}
+.arrow-before,
+.arrow-after {
+  border: 15px dashed transparent;
+  font-size: 0;
+  height: 0;
+  position: absolute;
+  width: 0;
+}
+.arrow-after {
+  border: 14px dashed transparent;
+}
+/*向上*/
+.bubble-top .arrow-before,
+.bubble-top .arrow-after {
+  bottom: 100%;
+  left: 50%;
+}
+.bubble-top .arrow-before {
+  border-bottom-color: #c4c4c4;
+  border-bottom-style: solid;
+  margin-left: -15px;
+}
+.bubble-top .arrow-after {
+  border-bottom-color: #f7f7f7;
+  border-bottom-style: solid;
+  margin-left: -14px;
+}
+/*向右*/
+.bubble-right .arrow-before,
+.bubble-right .arrow-after {
+  left: 100%;
+  top: 50%;
+}
+.bubble-right .arrow-before {
+  border-left-color: #c4c4c4;
+  border-left-style: solid;
+  margin-top: -15px;
+}
+.bubble-right .arrow-after {
+  border-left-color: #f7f7f7;
+  border-left-style: solid;
+  margin-top: -14px;
+}
+/*向下*/
+.bubble-bottom .arrow-before,
+.bubble-bottom .arrow-after {
+  left: 50%;
+  top: 100%;
+}
+.bubble-bottom .arrow-before {
+  border-top-color: #c4c4c4;
+  border-top-style: solid;
+  margin-left: -15px;
+}
+.bubble-bottom .arrow-after {
+  border-top-color: #f7f7f7;
+  border-top-style: solid;
+  margin-left: -14px;
+}
+/*向左*/
+.bubble-left .arrow-before,
+.bubble-left .arrow-after {
+  right: 100%;
+  top: 50%;
+}
+.bubble-left .arrow-before {
+  border-right-color: #c4c4c4;
+  border-right-style: solid;
+  margin-top: -15px;
+}
+.bubble-left .arrow-after {
+  border-right-color: #f7f7f7;
+  border-right-style: solid;
+  margin-top: -14px;
+}
+
+.bubble-travel {
+  left: -4px;
+  position: absolute;
+  top: -47px;
+}
+
+h3 label {
+  cursor: pointer;
+  position: relative;
+}
+
+.hide {
+  display: none;
+}
+
+#result {
+  border-radius: 7px;
+  font-size: 15px;
+  font-weight: normal;
+  padding: 6px;
+}
