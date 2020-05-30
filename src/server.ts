@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const secure = require("express-force-https");
 import logger = require("morgan");
 var fs = require("fs");
+const csv = require("csvtojson");
 
 import { Request, Response } from "express";
 
@@ -85,67 +86,45 @@ function saveEntries(entries: any, callback: Function) {
   });
 }
 
+var restrictionsData: any = { countries: [], restrictions: {} };
+const getRestrictionsData = () => restrictionsData;
 var serverData: any = {};
 const getServerData = () => serverData;
 
-function loadServerData() {
-  const path = "./input.json";
-
-  try {
-    if (fs.existsSync(path)) {
-      const json = fs.readFileSync(path, "utf8");
-      saveEntries(JSON.parse(json), (result: any) => {
-        serverData = result;
-      });
-    } else {
-      axios
-        .all([
-          axios.get(
-            "https://cadatacatalog.state.gov/dataset/4a387c35-29cb-4902-b91d-3da0dc02e4b2/resource/4c727464-8e6f-4536-b0a5-0a343dc6c7ff/download/traveladvisory.xml"
-          ),
-        ])
-        .then((axiosResponseArr: any) => {
-          const cdcResponse = axiosResponseArr[0];
-          const xml = cdcResponse.data;
-          const json = convert.xml2js(xml, {
-            alwaysChildren: false,
-            compact: true,
-            ignoreComment: true,
-          });
-
-          fs.writeFile(
-            path,
-            JSON.stringify(json.feed.entry),
-            "utf8",
-            (err: any) => {
-              if (err) {
-                return console.log(err);
+function loadRestrictionsData() {
+  axios
+    .get(
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=0&single=true&output=csv"
+    )
+    .then((res) => {
+      const csvFilePath = "file.csv";
+      fs.writeFile(csvFilePath, res.data, "utf8", (err: any) => {
+        if (err) {
+          return console.log(err);
+        }
+        csv()
+          .fromFile(csvFilePath)
+          .then((jsonObj: any) => {
+            jsonObj.forEach((v: any) => {
+              restrictionsData.countries.push(v.adm0_name);
+              if (!restrictionsData.restrictions[v.adm0_name]) {
+                restrictionsData.restrictions[v.adm0_name] = {};
               }
-            }
-          );
-
-          if (json.feed && json.feed.entry) {
-            saveEntries(json.feed.entry, (result: any) => {
-              serverData = result;
+              restrictionsData.restrictions[v.adm0_name] = v;
             });
-          }
-        })
-        .catch((error: Error) => {
-          console.error(error);
-        });
-    }
-  } catch (err) {
-    console.error(err);
-  }
+            restrictionsData.countries.sort();
+          });
+      });
+    });
 }
-loadServerData();
+loadRestrictionsData();
 
 function findCountry(search: string) {
-  const data = getServerData();
-  return data.items[search];
+  const data = getRestrictionsData();
+  return data.restrictions[search];
 }
 app.get("/api/countries", (request: Request, response: Response) => {
-  var serverData = getServerData();
+  var serverData = getRestrictionsData();
   response.send({
     countries: serverData.countries,
     total: serverData.countries.length,
@@ -153,7 +132,7 @@ app.get("/api/countries", (request: Request, response: Response) => {
 });
 
 app.get("/api/data", (request: Request, response: Response) => {
-  var serverData = getServerData();
+  var serverData = getRestrictionsData();
   response.send({
     data: serverData,
   });

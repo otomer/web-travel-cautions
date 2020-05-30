@@ -45,9 +45,7 @@ $(function () {
     }
 
     $.post(SEARCH_ENDPOINT, { search: searchQuery }).done((data) => {
-      const levelItem = levels[data.level];
-      resultText.html(`Level ${data.level} - ${levelItem.description}`);
-      resultText.attr("data-level", data.level);
+      resultText.html(`${data.info}<br/><br/>${data.optional2}`);
     });
   });
 
