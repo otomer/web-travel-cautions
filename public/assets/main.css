@@ -1,16 +1,3 @@
-[data-level="1"] {
-  background: #163b72 !important;
-}
-[data-level="2"] {
-  background: #f3c876 !important;
-}
-[data-level="3"] {
-  background: #f29f41 !important;
-}
-[data-level="4"] {
-  background: #ea3324 !important;
-}
-
 @import url("https://fonts.googleapis.com/css?family=Montserrat:100,400&display=swap");
 
 a {
@@ -49,9 +36,9 @@ a:hover {
   }
 }
 body {
-  animation: random-background 14s infinite;
+  /* animation: random-background 14s infinite; */
   animation-direction: alternate;
-  background: #42c4de;
+  background: #8b008b;
   font-family: "Montserrat", sans-serif;
 }
 input {
@@ -138,20 +125,14 @@ h3 {
   font-size: 20px;
 }
 #top {
-  height: 350px;
-  width: 550px;
-
   bottom: 0;
   left: 0;
   margin: auto;
-  position: absolute; /*it can be fixed too*/
-  right: 0;
-  top: 0;
-
-  /*this to solve "the content will not be cut when the window is smaller than the content": */
   max-height: 100%;
   max-width: 100%;
   overflow: auto;
+  right: 0;
+  width: 550px;
 }
 
 /* Autocomplete */
