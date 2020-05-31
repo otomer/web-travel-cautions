@@ -86,42 +86,66 @@ function saveEntries(entries: any, callback: Function) {
   });
 }
 
-var restrictionsData: any = { countries: [], restrictions: {} };
+var restrictionsData: any = { airline: {}, countries: [], restrictions: {} };
 const getRestrictionsData = () => restrictionsData;
 var serverData: any = {};
 const getServerData = () => serverData;
 
+const TravelRestrictionsByCountry =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=0&single=true&output=csv";
+const AirlineRestrictionsInfo =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=646351539&single=true&output=csv";
+
+function csvExtract(csvFilePath: String, data: any, cb: Function) {
+  fs.writeFile(csvFilePath, data, "utf8", (err: any) => {
+    if (err) {
+      return console.log(err);
+    } else {
+      csv().fromFile(csvFilePath).then(cb);
+    }
+  });
+}
+
 function loadRestrictionsData() {
   axios
-    .get(
-      "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=0&single=true&output=csv"
-    )
-    .then((res) => {
-      const csvFilePath = "file.csv";
-      fs.writeFile(csvFilePath, res.data, "utf8", (err: any) => {
-        if (err) {
-          return console.log(err);
-        }
-        csv()
-          .fromFile(csvFilePath)
-          .then((jsonObj: any) => {
-            jsonObj.forEach((v: any) => {
-              restrictionsData.countries.push(v.adm0_name);
-              if (!restrictionsData.restrictions[v.adm0_name]) {
-                restrictionsData.restrictions[v.adm0_name] = {};
-              }
-              restrictionsData.restrictions[v.adm0_name] = v;
-            });
-            restrictionsData.countries.sort();
-          });
+    .all([
+      axios.get(TravelRestrictionsByCountry),
+      axios.get(AirlineRestrictionsInfo),
+    ])
+    .then((responseArr: any) => {
+      const travelResponse = responseArr[0];
+      const airlineResponse = responseArr[1];
+
+      csvExtract("travel.csv", travelResponse.data, (jsonObj: any) => {
+        jsonObj.forEach((v: any) => {
+          restrictionsData.countries.push(v.adm0_name);
+          if (!restrictionsData.restrictions[v.adm0_name]) {
+            restrictionsData.restrictions[v.adm0_name] = {};
+          }
+          restrictionsData.restrictions[v.adm0_name] = v;
+        });
+        restrictionsData.countries.sort();
       });
+
+      csvExtract("airline.csv", airlineResponse.data, (jsonObj: any) => {
+        console.log(jsonObj[0]);
+        jsonObj.forEach((v: any) => {
+          if (!restrictionsData.airline[v.adm0_name]) {
+            restrictionsData.airline[v.adm0_name] = [];
+          }
+          restrictionsData.airline[v.adm0_name].push(v);
+        });
+      });
+    })
+    .catch((error: Error) => {
+      console.error(error);
     });
 }
 loadRestrictionsData();
 
 function findCountry(search: string) {
   const data = getRestrictionsData();
-  return data.restrictions[search];
+  return { airlines: data.airline[search], travel: data.restrictions[search] };
 }
 app.get("/api/countries", (request: Request, response: Response) => {
   var serverData = getRestrictionsData();

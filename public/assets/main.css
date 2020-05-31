@@ -74,15 +74,7 @@ button {
 input:focus {
   border: 2px black solid;
 }
-img {
-  display: block;
-  filter: invert(99%) sepia(95%) saturate(0%) hue-rotate(33deg) brightness(104%)
-    contrast(101%);
-  height: 89.9851px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 255px;
-}
+
 input[type="text"] {
   color: black;
   font-family: "Montserrat", sans-serif;
@@ -130,9 +122,9 @@ h3 {
   margin: auto;
   max-height: 100%;
   max-width: 100%;
-  overflow: auto;
+  overflow: hidden;
   right: 0;
-  width: 550px;
+  width: 650px;
 }
 
 /* Autocomplete */

@@ -38,6 +38,9 @@ $(function () {
     },
   });
 
+  function newLine(text) {
+    return text.replace(/(?:\r\n|\r|\n)/g, "<br>");
+  }
   searchButton.click(function (e) {
     const searchQuery = textInput.val();
     if (!searchQuery) {
@@ -45,7 +48,28 @@ $(function () {
     }
 
     $.post(SEARCH_ENDPOINT, { search: searchQuery }).done((data) => {
-      resultText.html(`${data.info}<br/><br/>${data.optional2}`);
+      const travel = data.travel;
+      const airlines = data.airlines;
+
+      let strAirlines = "";
+      airlines.forEach((v, i) => {
+        strAirlines += `<br/>✈ ${i + 1}. ${v.info}`;
+      });
+
+      resultText.html(
+        `${travel.adm0_name} | ${travel.iso3} | published: ${travel.published}
+        <hr/>
+        Airlines information:
+        ${strAirlines}
+        <hr/>
+        <img src="https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAUzz1zAEMeDzquaroYBj2Lvy6II8Sh5Q8&size=350x350&zoom=6&sensor=false&maptype=hybrid&markers=color:red%7C${
+          travel.Y
+        },${travel.X}&format=gif">
+        <br/>
+        (${travel.Y},${travel.X})
+        <br/>${newLine(travel.info)}
+        <hr/>${newLine(travel.optional2)}<hr/>${newLine(travel.optional3)}`
+      );
     });
   });
 
