@@ -51,10 +51,13 @@ $(function () {
       const travel = data.travel;
       const airlines = data.airlines;
 
-      let strAirlines = "";
-      airlines.forEach((v, i) => {
-        strAirlines += `<br/>${i + 1}. ${v.info} (${v.published})`;
-      });
+      let strAirlines = "No information available";
+      if (airlines.length > 0) {
+        strAirlines = "";
+        airlines.forEach((v, i) => {
+          strAirlines += `<br/>${i + 1}. ${v.info} (${v.published})`;
+        });
+      }
 
       resultText.html(
         `${travel.adm0_name} | ${travel.iso3} | published: ${travel.published}
