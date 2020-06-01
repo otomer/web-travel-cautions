@@ -48,6 +48,11 @@ $(function () {
     }
 
     $.post(SEARCH_ENDPOINT, { search: searchQuery }).done((data) => {
+      if (!data.travel) {
+        resultText.html(`There are no results for '${searchQuery}'`);
+        return;
+      }
+
       const travel = data.travel;
       const airlines = data.airlines;
 
