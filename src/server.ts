@@ -75,7 +75,6 @@ function loadRestrictionsData() {
       });
 
       csvExtract("airline.csv", airlineResponse.data, (jsonObj: any) => {
-        console.log(jsonObj[0]);
         jsonObj.forEach((v: any) => {
           if (!restrictionsData.airline[v.adm0_name]) {
             restrictionsData.airline[v.adm0_name] = [];
