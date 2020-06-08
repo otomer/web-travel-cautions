@@ -5,10 +5,13 @@ import logger = require("morgan");
 var fs = require("fs");
 const csv = require("csvtojson");
 var cors = require("cors");
+const getCountryISO3 = require("country-iso-2-to-3");
 
 import { Request, Response } from "express";
 
 import axios from "axios";
+
+import e = require("express");
 
 /**
  * Initialization
@@ -33,10 +36,13 @@ app.use(cors());
  * Express Routes
  */
 
-var restrictionsData: any = { airline: {}, countries: [], restrictions: {} };
+var restrictionsData: any = {
+  airline: { iso3: {}, name: {} },
+  countries: [],
+  iso3: [],
+  restrictions: { iso3: {}, name: {} },
+};
 const getRestrictionsData = () => restrictionsData;
-var serverData: any = {};
-const getServerData = () => serverData;
 
 const TravelRestrictionsByCountry =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=0&single=true&output=csv";
@@ -63,23 +69,41 @@ function loadRestrictionsData() {
       const travelResponse = responseArr[0];
       const airlineResponse = responseArr[1];
 
+      const collectData = (
+        dataType: string,
+        hashKey: string,
+        itemPropertyName: string,
+        item: any
+      ) => {
+        if (!restrictionsData[dataType][hashKey][item[itemPropertyName]]) {
+          restrictionsData[dataType][hashKey][item[itemPropertyName]] =
+            dataType == "airline" ? [] : {};
+        }
+
+        if (dataType == "airline") {
+          restrictionsData[dataType][hashKey][item[itemPropertyName]].push(
+            item
+          );
+        } else {
+          restrictionsData[dataType][hashKey][item[itemPropertyName]] = item;
+        }
+      };
+
       csvExtract("travel.csv", travelResponse.data, (jsonObj: any) => {
         jsonObj.forEach((v: any) => {
           restrictionsData.countries.push(v.adm0_name);
-          if (!restrictionsData.restrictions[v.adm0_name]) {
-            restrictionsData.restrictions[v.adm0_name] = {};
-          }
-          restrictionsData.restrictions[v.adm0_name] = v;
+          restrictionsData.iso3.push(v.iso3);
+          collectData("restrictions", "name", "adm0_name", v);
+          collectData("restrictions", "iso3", "iso3", v);
         });
         restrictionsData.countries.sort();
+        restrictionsData.iso3.sort();
       });
 
       csvExtract("airline.csv", airlineResponse.data, (jsonObj: any) => {
         jsonObj.forEach((v: any) => {
-          if (!restrictionsData.airline[v.adm0_name]) {
-            restrictionsData.airline[v.adm0_name] = [];
-          }
-          restrictionsData.airline[v.adm0_name].push(v);
+          collectData("airline", "name", "adm0_name", v);
+          collectData("airline", "iso3", "iso3", v);
         });
       });
     })
@@ -89,15 +113,26 @@ function loadRestrictionsData() {
 }
 loadRestrictionsData();
 
-function findCountry(search: string) {
+function findCountry(propertyName: string, search: string) {
   const data = getRestrictionsData();
-  return { airlines: data.airline[search], travel: data.restrictions[search] };
+  return {
+    airlines: data.airline[propertyName][search],
+    travel: data.restrictions[propertyName][search],
+  };
 }
 app.get("/api/countries", (request: Request, response: Response) => {
   var serverData = getRestrictionsData();
   response.send({
     countries: serverData.countries,
     total: serverData.countries.length,
+  });
+});
+
+app.get("/api/iso3", (request: Request, response: Response) => {
+  var serverData = getRestrictionsData();
+  response.send({
+    iso3: serverData.iso3,
+    total: serverData.iso3.length,
   });
 });
 
@@ -109,8 +144,15 @@ app.get("/api/data", (request: Request, response: Response) => {
 });
 
 app.post("/api/travel-cautions", (request: Request, response: Response) => {
-  const searchQuery = request.body.search;
-  const result = findCountry(searchQuery);
+  let result = { airlines: {}, travel: {} };
+
+  if (request.body.iso2) {
+    const mappedISO3 = getCountryISO3(request.body.iso2);
+    result = findCountry("iso3", mappedISO3);
+  } else {
+    result = findCountry("name", request.body.search);
+  }
+
   response.send({ ...result });
 });
 
