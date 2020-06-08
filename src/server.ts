@@ -4,6 +4,7 @@ const secure = require("express-force-https");
 import logger = require("morgan");
 var fs = require("fs");
 const csv = require("csvtojson");
+var cors = require("cors");
 
 import { Request, Response } from "express";
 
@@ -29,62 +30,11 @@ app.use(logger("dev"));
 app.use(express.static("public")); // Static files configuration
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // Support JSON bodies
+app.use(cors());
 
 /**
  * Express Routes
  */
-
-function extractTravelAdvisoryFromCountryTitle(str: string) {
-  const regex = /(.*) - Level (.*?): (.*)/gm;
-  let m;
-  let result;
-
-  while ((m = regex.exec(str)) !== null) {
-    if (m.index === regex.lastIndex) {
-      regex.lastIndex++;
-    }
-    result = { country: m[1], description: m[3], level: m[2] };
-  }
-
-  return result;
-}
-
-function convertEntriesToResult(entries: any) {
-  const result: any = {
-    countries: [],
-    countryToLevel: {},
-    items: {},
-    levelToCountries: { 1: [], 2: [], 3: [], 4: [] },
-  };
-  entries.forEach((v: any) => {
-    const countryFullTitle = v.title._text || v.title.text;
-    const match: any = extractTravelAdvisoryFromCountryTitle(countryFullTitle);
-    if (match && !result[match.country]) {
-      result.countryToLevel[match.country] = match.level;
-      result.items[match.country] = match;
-      result.levelToCountries[match.level].push(match.country);
-      result.countries.push(match.country);
-    }
-  });
-
-  Object.keys(result.levelToCountries).forEach(function (key) {
-    result.levelToCountries[key].sort();
-  });
-  result.countries.sort();
-
-  return result;
-}
-
-function saveEntries(entries: any, callback: Function) {
-  const outputPath = "./output.json";
-  const result = convertEntriesToResult(entries);
-  fs.writeFile(outputPath, JSON.stringify(result), "utf8", (err: any) => {
-    if (err) {
-      return console.log(err);
-    }
-    callback(result);
-  });
-}
 
 var restrictionsData: any = { airline: {}, countries: [], restrictions: {} };
 const getRestrictionsData = () => restrictionsData;
@@ -191,3 +141,54 @@ const server = app.listen(config.PORT, () =>
     `🚀 Server is listening on http://localhost:${server.address().port}`
   )
 );
+
+/* Travel Advisory Level - currently not in use */
+function saveEntries(entries: any, callback: Function) {
+  const outputPath = "./output.json";
+  const result = convertEntriesToResult(entries);
+  fs.writeFile(outputPath, JSON.stringify(result), "utf8", (err: any) => {
+    if (err) {
+      return console.log(err);
+    }
+    callback(result);
+  });
+}
+function extractTravelAdvisoryFromCountryTitle(str: string) {
+  const regex = /(.*) - Level (.*?): (.*)/gm;
+  let m;
+  let result;
+
+  while ((m = regex.exec(str)) !== null) {
+    if (m.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
+    result = { country: m[1], description: m[3], level: m[2] };
+  }
+
+  return result;
+}
+function convertEntriesToResult(entries: any) {
+  const result: any = {
+    countries: [],
+    countryToLevel: {},
+    items: {},
+    levelToCountries: { 1: [], 2: [], 3: [], 4: [] },
+  };
+  entries.forEach((v: any) => {
+    const countryFullTitle = v.title._text || v.title.text;
+    const match: any = extractTravelAdvisoryFromCountryTitle(countryFullTitle);
+    if (match && !result[match.country]) {
+      result.countryToLevel[match.country] = match.level;
+      result.items[match.country] = match;
+      result.levelToCountries[match.level].push(match.country);
+      result.countries.push(match.country);
+    }
+  });
+
+  Object.keys(result.levelToCountries).forEach(function (key) {
+    result.levelToCountries[key].sort();
+  });
+  result.countries.sort();
+
+  return result;
+}
