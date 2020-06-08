@@ -145,9 +145,8 @@ app.get("/api/data", (request: Request, response: Response) => {
 
 app.post("/api/travel-cautions", (request: Request, response: Response) => {
   let result = { airlines: {}, travel: {} };
-
   if (request.body.iso2) {
-    const mappedISO3 = getCountryISO3(request.body.iso2);
+    const mappedISO3 = getCountryISO3(request.body.iso2.toUpperCase());
     result = findCountry("iso3", mappedISO3);
   } else {
     result = findCountry("name", request.body.search);
