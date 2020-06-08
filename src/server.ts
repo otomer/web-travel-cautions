@@ -10,9 +10,6 @@ import { Request, Response } from "express";
 
 import axios from "axios";
 
-var convert = require("xml-js");
-var xml2js = require("xml2js");
-
 /**
  * Initialization
  */
