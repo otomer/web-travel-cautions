@@ -171,7 +171,7 @@ app.post("/api/travel-cautions", (request: Request, response: Response) => {
     const ISO2 = request.body.iso2.toUpperCase();
     const mappedISO3 = getCountryISO3(ISO2);
     result = findCountry("iso3", mappedISO3);
-    result.advisory = getRestrictionsData().advisory[ISO2];
+    result.advisory = getRestrictionsData().advisory.iso2[ISO2];
   } else {
     result = findCountry("name", request.body.search);
   }
