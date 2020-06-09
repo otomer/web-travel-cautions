@@ -7,6 +7,7 @@ const csv = require("csvtojson");
 var cors = require("cors");
 
 import { Request, Response } from "express";
+const countriesNames = require('../public/assets/countries_names.json');
 
 import axios from "axios";
 
@@ -91,7 +92,8 @@ loadRestrictionsData();
 
 function findCountry(search: string) {
   const data = getRestrictionsData();
-  return { airlines: data.airline[search], travel: data.restrictions[search] };
+  const countryName = countriesNames[search];
+  return { airlines: data.airline[countryName], travel: data.restrictions[countryName] };
 }
 app.get("/api/countries", (request: Request, response: Response) => {
   var serverData = getRestrictionsData();
