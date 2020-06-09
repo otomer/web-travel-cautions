@@ -37,6 +37,7 @@ app.use(cors());
  */
 
 var restrictionsData: any = {
+  advisory: { iso2: {} },
   airline: { iso3: {}, name: {} },
   countries: [],
   iso3: [],
@@ -48,49 +49,60 @@ const TravelRestrictionsByCountry =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=0&single=true&output=csv";
 const AirlineRestrictionsInfo =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=646351539&single=true&output=csv";
+const TravelAdvisoryRiskLevel = "https://www.travel-advisory.info/api";
 
-function csvExtract(csvFilePath: String, data: any, cb: Function) {
-  fs.writeFile(csvFilePath, data, "utf8", (err: any) => {
-    if (err) {
-      return console.log(err);
-    } else {
-      csv().fromFile(csvFilePath).then(cb);
+const saveDataToFile = (filePath: String, data: any, cb: Function) => {
+  const isCsv = filePath.endsWith(".csv");
+  fs.writeFile(
+    filePath,
+    isCsv ? data : JSON.stringify(data),
+    "utf8",
+    (err: any) => {
+      if (err) {
+        return console.log(err);
+      } else {
+        if (isCsv) {
+          csv().fromFile(filePath).then(cb);
+        } else {
+          cb(data);
+        }
+      }
     }
-  });
-}
+  );
+};
+
+const collectData = (
+  dataType: string,
+  hashKey: string,
+  itemPropertyName: string,
+  item: any
+) => {
+  if (!restrictionsData[dataType][hashKey][item[itemPropertyName]]) {
+    restrictionsData[dataType][hashKey][item[itemPropertyName]] =
+      dataType == "airline" ? [] : {};
+  }
+
+  if (dataType == "airline") {
+    restrictionsData[dataType][hashKey][item[itemPropertyName]].push(item);
+  } else {
+    restrictionsData[dataType][hashKey][item[itemPropertyName]] = item;
+  }
+};
 
 function loadRestrictionsData() {
   axios
     .all([
       axios.get(TravelRestrictionsByCountry),
       axios.get(AirlineRestrictionsInfo),
+      axios.get(TravelAdvisoryRiskLevel),
     ])
     .then((responseArr: any) => {
       const travelResponse = responseArr[0];
       const airlineResponse = responseArr[1];
+      const travelAdvisoryResponse = responseArr[2];
 
-      const collectData = (
-        dataType: string,
-        hashKey: string,
-        itemPropertyName: string,
-        item: any
-      ) => {
-        if (!restrictionsData[dataType][hashKey][item[itemPropertyName]]) {
-          restrictionsData[dataType][hashKey][item[itemPropertyName]] =
-            dataType == "airline" ? [] : {};
-        }
-
-        if (dataType == "airline") {
-          restrictionsData[dataType][hashKey][item[itemPropertyName]].push(
-            item
-          );
-        } else {
-          restrictionsData[dataType][hashKey][item[itemPropertyName]] = item;
-        }
-      };
-
-      csvExtract("travel.csv", travelResponse.data, (jsonObj: any) => {
-        jsonObj.forEach((v: any) => {
+      saveDataToFile("travel.csv", travelResponse.data, (restrictions: any) => {
+        restrictions.forEach((v: any) => {
           restrictionsData.countries.push(v.adm0_name);
           restrictionsData.iso3.push(v.iso3);
           collectData("restrictions", "name", "adm0_name", v);
@@ -100,12 +112,22 @@ function loadRestrictionsData() {
         restrictionsData.iso3.sort();
       });
 
-      csvExtract("airline.csv", airlineResponse.data, (jsonObj: any) => {
-        jsonObj.forEach((v: any) => {
+      saveDataToFile("airline.csv", airlineResponse.data, (airlines: any) => {
+        airlines.forEach((v: any) => {
           collectData("airline", "name", "adm0_name", v);
           collectData("airline", "iso3", "iso3", v);
         });
       });
+
+      saveDataToFile(
+        "advisory.json",
+        travelAdvisoryResponse.data.data,
+        (traveAdvisory: any) => {
+          Object.keys(traveAdvisory).forEach((key) => {
+            collectData("advisory", "iso2", "iso_alpha2", traveAdvisory[key]);
+          });
+        }
+      );
     })
     .catch((error: Error) => {
       console.error(error);

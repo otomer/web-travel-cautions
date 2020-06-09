@@ -10,10 +10,30 @@ $(function () {
   const resultText = $(resultTextId);
 
   const levels = {
-    "1": { color: "#163b72", description: "Exercise Normal Precautions" },
-    "2": { color: "#f3c876", description: "Exercise Increased Caution" },
-    "3": { color: "#f29f41", description: "Reconsider Travel" },
-    "4": { color: "#ea3324", description: "Do Not Travel" },
+    "1": {
+      color: "#dff0d8",
+      description:
+        "Usually this is an indicator that travelling in this country is relatively safe. Higher attention is advised with values > 1.",
+      title: "Low Risk",
+    },
+    "2": {
+      color: "#d9edf7",
+      description:
+        "Warnings often relate to specific regions within a country. However, high attention is still advised when moving around.",
+      title: "Medium Risk",
+    },
+    "3": {
+      color: "#fcf8e3",
+      description:
+        "Travel should be reduced to a necessary minimum and be conducted with good preparation and high attention.",
+      title: "High Risk",
+    },
+    "4": {
+      color: "#f2dede",
+      description:
+        "You should avoid any trips. A high warning index is a sound indicator of potential harm to your health and well-being.",
+      title: "Extreme Warning",
+    },
   };
 
   textInput.autocomplete({
