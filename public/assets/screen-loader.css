@@ -1,0 +1,12 @@
+.screen-loader {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+}
+.screen-loader svg {
+  height: 100%;
+  visibility: hidden;
+  width: 100%;
+}

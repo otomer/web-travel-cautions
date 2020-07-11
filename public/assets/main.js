@@ -1,40 +1,60 @@
-$(function () {
+const newLine = (text) => text.replace(/(?:\r\n|\r|\n)/g, "<br>");
+
+$(() => {
   const SEARCH_ENDPOINT = "/api/travel-cautions";
+  const SEARCH_HISTORY = ["Brazil", "China", "Israel"];
+
+  // Selectors
   const textInputId = "#autocomplete";
   const searchButtonId = "#search";
-  const infoLabelId = "#info";
   const resultTextId = "#result";
+  const modalOpenClass = ".md-trigger";
+  const modalCloseClass = ".md-close";
+  const modalWindowClass = ".md-modal";
+  const modalHideClassName = "md-show";
+  const noScrollClassName = "noscroll";
+  const modalWindowTitleId = "#modalTitle";
+  const searchHistoryClass = ".search-history";
+
+  // DOM Elements
   const textInput = $(textInputId);
   const searchButton = $(searchButtonId);
-  const infoLabel = $(infoLabelId);
   const resultText = $(resultTextId);
+  const modalWindow = $(modalWindowClass);
+  const modalWindowTitle = $(modalWindowTitleId);
+  const searchHistory = $(searchHistoryClass);
 
-  const levels = {
-    "1": {
-      color: "#dff0d8",
-      description:
-        "Usually this is an indicator that travelling in this country is relatively safe. Higher attention is advised with values > 1.",
-      title: "Low Risk",
-    },
-    "2": {
-      color: "#d9edf7",
-      description:
-        "Warnings often relate to specific regions within a country. However, high attention is still advised when moving around.",
-      title: "Medium Risk",
-    },
-    "3": {
-      color: "#fcf8e3",
-      description:
-        "Travel should be reduced to a necessary minimum and be conducted with good preparation and high attention.",
-      title: "High Risk",
-    },
-    "4": {
-      color: "#f2dede",
-      description:
-        "You should avoid any trips. A high warning index is a sound indicator of potential harm to your health and well-being.",
-      title: "Extreme Warning",
-    },
+  const hRenderItem = (value) => {
+    searchHistory.prepend(`<li>
+      <span class="text">
+        <a href="#">${value}</a>
+      </span>
+      <a class="link" href="#"></a>
+    </li>`);
   };
+  const hFetch = (array) => {
+    array.forEach((value, index) => {
+      hRenderItem(value);
+    });
+  };
+  const hPush = (searchQuery) => {
+    searchHistory.find("li:last-child").remove();
+    hRenderItem(searchQuery);
+  };
+
+  // Search History
+  hFetch(SEARCH_HISTORY);
+  $("body").on("click", ".search-history li", (event) => {
+    const _this = $(event.currentTarget);
+    const countryName = _this.find(".text a").text();
+    search(countryName);
+  });
+
+  $(".grid li").click((event) => {
+    const _this = $(event.currentTarget);
+    const countryName = _this.find("h3").text();
+    search(countryName);
+  });
 
   textInput.autocomplete({
     lookup: window.COUNTRIES,
@@ -58,51 +78,127 @@ $(function () {
     },
   });
 
-  function newLine(text) {
-    return text.replace(/(?:\r\n|\r|\n)/g, "<br>");
-  }
+  const modalHide = () => {
+    $("body").removeClass(noScrollClassName);
+    modalWindow.removeClass(modalHideClassName);
+    textInput.val("");
+  };
+
+  const modalShow = () => {
+    $("body").addClass(noScrollClassName);
+    modalWindow.addClass(modalHideClassName);
+  };
+  $(modalOpenClass).on("click", () => modalShow());
+  $(modalCloseClass).on("click", () => modalHide());
+
+  $(".js-anchor-link").click(function (e) {
+    e.preventDefault();
+    var target = $($(this).attr("href"));
+    if (target.length) {
+      var scrollTo = target.offset().top;
+      $("body, html").animate({ scrollTop: scrollTo + "px" }, 800);
+    }
+  });
+
+  const search = (searchQuery) => {
+    const addSection = (id, title, content, icon) => {
+      $(id).html(
+        `<h3><i aria-hidden="true" class="fa ${icon} fa-4"></i> ${title}</h3><hr/><p>${
+          content.trim().length > 0
+            ? newLine(content)
+            : "No information available"
+        }</p>`
+      );
+    };
+    $.post(SEARCH_ENDPOINT, { search: searchQuery }).done((data) => {
+      if (!data.travel) {
+        alert(`There are no results for '${searchQuery}'`);
+        return;
+      }
+
+      const travel = data.travel;
+      let airlines = data.airlines;
+
+      const convertStrToDate = (str) => {
+        var dateParts = str.split(".");
+
+        // month is 0-based, that's why we need dataParts[1] - 1
+        var dateObject = new Date(
+          +dateParts[2],
+          dateParts[1] - 1,
+          +dateParts[0]
+        );
+
+        return dateObject;
+      };
+
+      let strAirlines = "";
+      if (airlines.length > 0) {
+        airlines = airlines.sort(function (a, b) {
+          var dateA = new Date(convertStrToDate(a.published)),
+            dateB = new Date(convertStrToDate(b.published));
+          return dateB - dateA;
+        });
+
+        airlines.forEach((v, i) => {
+          if (v && v.info) {
+            strAirlines += `<tr><td>${v.info}</td><td>${v.published}</td></tr>`;
+          }
+        });
+      }
+      if (strAirlines) {
+        strAirlines = `<table>${strAirlines}</table>`;
+      }
+
+      modalWindowTitle.html(`${searchQuery} Travel Restrictions`);
+      addSection(
+        "#self-quarantine",
+        "Self-Quarantine",
+        travel.optional2,
+        "fa-home"
+      );
+      addSection("#airlines", "Airlines Information", strAirlines, "fa-plane");
+      addSection(
+        "#certificate",
+        "Health Certification Requirement",
+        travel.optional3,
+        "fa-medkit"
+      );
+      addSection(
+        "#general-info",
+        "General Information",
+        travel.info,
+        "fa-info-circle"
+      );
+
+      // resultText.html(
+      //   `${travel.adm0_name} | ${travel.iso3} | published: ${travel.published}
+      //   <hr/>
+      //   ✈ Airlines information:
+      //   ${strAirlines}
+      //   <br/>
+      //   <a href="http://www.google.com/maps/place/${travel.Y},${
+      //     travel.X
+      //   },15z">Google Maps</a>
+      //   <hr/>
+      //   <a href="https://earth.google.com/web/search/${travel.Y},${
+      //     travel.X
+      //   }/">Google Earth<a>
+      //   <hr/>
+      //   ${newLine(travel.info)}
+      //   <hr/>${newLine(travel.optional2)}<hr/>${newLine(travel.optional3)}`
+      // );
+      modalShow();
+    });
+  };
+
   searchButton.click(function (e) {
     const searchQuery = textInput.val();
     if (!searchQuery) {
       return;
     }
 
-    $.post(SEARCH_ENDPOINT, { search: searchQuery }).done((data) => {
-      if (!data.travel) {
-        resultText.html(`There are no results for '${searchQuery}'`);
-        return;
-      }
-
-      const travel = data.travel;
-      const airlines = data.airlines;
-
-      let strAirlines = "No information available";
-      if (airlines.length > 0) {
-        strAirlines = "";
-        airlines.forEach((v, i) => {
-          strAirlines += `<br/>${i + 1}. ${v.info} (${v.published})`;
-        });
-      }
-
-      resultText.html(
-        `${travel.adm0_name} | ${travel.iso3} | published: ${travel.published}
-        <hr/>
-        ✈ Airlines information:
-        ${strAirlines}
-        <hr/>
-        <img src="https://maps.googleapis.com/maps/api/staticmap?key=AIzaSyAUzz1zAEMeDzquaroYBj2Lvy6II8Sh5Q8&size=350x350&zoom=6&sensor=false&maptype=hybrid&markers=color:red%7C${
-          travel.Y
-        },${travel.X}&format=gif">
-        <br/>
-        (${travel.Y}, ${travel.X})
-        <hr/>
-        ${newLine(travel.info)}
-        <hr/>${newLine(travel.optional2)}<hr/>${newLine(travel.optional3)}`
-      );
-    });
-  });
-
-  infoLabel.click(function () {
-    $(".bubble-travel").toggleClass("hide");
+    search(searchQuery);
+    hPush(searchQuery);
   });
 });

@@ -1,0 +1,12 @@
+:root {
+  --alt-color: #7f8c8d;
+  --alt2-color: #353b48;
+  --bg-color: #3298da;
+  --primary-color: #353b48;
+  --secondary-color: #f5f6fd;
+  --white-color: #fff;
+}
+
+.hide {
+  display: none !important;
+}

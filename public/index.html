@@ -9,46 +9,242 @@
     />
     <meta content="Description" name="description" />
     <title>
-      Travel Cautions | Plan your trip with the right precautions
+      Safe 2 Travel - Travel Restrictions Insights
     </title>
-    <link href="assets/main.css" rel="stylesheet" />
+    <link href="./assets/general.css" rel="stylesheet" />
+    <!-- <link href="./assets/screen-loader.css" rel="stylesheet" /> -->
     <link
-      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✈️</text></svg>"
-      rel="icon"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
+      rel="stylesheet"
+    /> -->
+    <link href="assets/main.css" rel="stylesheet" />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Quicksand"
+      rel="stylesheet"
+    />
+    <link
+      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
     />
   </head>
   <body>
-    <div id="top">
-      <h1>Travel Cautions</h1>
-      <h3>
-        As a first step in planning any trip abroad, check the travel cautions
-        <label class="hide" id="info">
-          ℹ️
-          <div class="bubble-travel hide bubble bubble-bottom">
-            <i class="arrow-before"></i>
-            <i class="arrow-after"></i>
+    <header>
+      <h2><a href="http://www.safe2travel.club">safe2travel.club</a></h2>
+      <nav>
+        <li>
+          <a class="js-anchor-link" href="#destinations">Destinations</a>
+        </li>
+        <li>
+          <a class="js-anchor-link" href="#restrictions">Restrictions</a>
+        </li>
+        <li><a class="js-anchor-link" href="#about">About</a></li>
+      </nav>
+    </header>
+    <section class="hero">
+      <div
+        class="background-image"
+        style="background-image: url(assets/images/bg-travel.jpg);"
+      ></div>
+      <div class="hero-content-area">
+        <div class="home wrapper">
+          <div class="container-search">
+            <h1>
+              Travel Safely
+            </h1>
+            <h3>
+              Planning any trip starts with checking travel restrictions for
+              your destination
+            </h3>
+            <div class="container-input">
+              <input
+                class="search-term"
+                id="autocomplete"
+                placeholder="Choose a country..."
+                type="text"
+              />
+              <button class="search-button" id="search" type="submit">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+            <ul class="search-history"></ul>
           </div>
-        </label>
-        for your intended destination...
-      </h3>
-      <input
-        id="autocomplete"
-        name="country"
-        placeholder="Country Name"
-        type="text"
-      />
-      <button id="search">Search</button>
-      <h4 id="result"></h4>
-    </div>
+        </div>
+      </div>
+    </section>
 
-    <script
-      crossorigin="anonymous"
-      integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
-    ></script>
+    <!-- <button class="md-trigger" data-modal="modal-12">Show modal</button> -->
+    <div class="md-modal md-effect-12">
+      <div class="md-content">
+        <div class="close-btn-container md-close">
+          <i aria-hidden="true" class="fa fa-times fa-4"></i>
+        </div>
+        <h2 id="modalTitle"></h2>
+        <div class="content-section" id="self-quarantine"></div>
+        <div class="content-section" id="certificate"></div>
+        <div class="content-section" id="airlines"></div>
+        <div class="content-section" id="general-info"></div>
+      </div>
+    </div>
+    <div class="md-overlay"></div>
+
+    <section class="destinations">
+      <a id="destinations" name="destinations"></a>
+      <h3 class="title">Destinations to look at:</h3>
+      <p>
+        The world is full of great places to visit! Here are few of the best
+        travel destinations you have to consider..
+      </p>
+      <hr />
+
+      <ul class="grid">
+        <li
+          class="small"
+          style="background-image: url(assets/images/israel.jpg);"
+        >
+          <h3>Israel</h3>
+        </li>
+        <li class="large" style="background-image: url(assets/images/usa.jpg);">
+          <h3>United States of America</h3>
+        </li>
+        <li
+          class="large"
+          style="background-image: url(assets/images/netherlands.jpg);"
+        >
+          <h3>Netherlands</h3>
+        </li>
+        <li
+          class="small"
+          style="background-image: url(assets/images/germany.jpg);"
+        >
+          <h3>Germany</h3>
+        </li>
+      </ul>
+    </section>
+
+    <section class="packages">
+      <a id="restrictions" name="restrictions"></a>
+      <h3 class="title">Travel Restrictions Insights</h3>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+      </p>
+      <hr />
+
+      <ul class="grid">
+        <li>
+          <i class="fa fa-certificate fa-4x"></i>
+          <h4>Certificate Requirement</h4>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </p>
+        </li>
+        <li>
+          <i class="fa fa-medkit fa-4x"></i>
+          <h4>Health Restrictions</h4>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </p>
+        </li>
+
+        <li>
+          <i class="fa fa-train fa-4x"></i>
+          <h4>Transportation Limitations</h4>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </p>
+        </li>
+        <li>
+          <i class="fa fa-plane fa-4x"></i>
+          <h4>Airlines Information</h4>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="testimonials">
+      <a id="testimonials" name="testimonials"></a>
+      <h3 class="title">Testimonials from our adventurers:</h3>
+      <hr />
+      <p class="quote">
+        I found the information on the site to be really effective for me in
+        planning my next trip
+      </p>
+      <p class="author">-John Doe</p>
+      <p class="quote">
+        Thank you for making this complex period less confusing for us in
+        choosing the next destination we will be traveling to!
+      </p>
+      <p class="author">-Jane Doe</p>
+    </section>
+
+    <section class="contact">
+      <a id="about" name="about"></a>
+      <h3 class="title">About</h3>
+      <hr />
+
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat.
+      </p>
+      <!-- <form>
+        <input placeholder="Email" type="email" />
+        <a class="btn" href="#">Subscribe Now</a>
+      </form> -->
+    </section>
+
+    <footer>
+      <p>
+        by
+        <a href="https://www.tomerovadia.com" target="_blank"
+          >TOMEROVADIA.com</a
+        >
+      </p>
+      <p>2020 Travel Safely</p>
+      <ul>
+        <li>
+          <a href="#"><i class="fa fa-twitter-square fa-2x"></i></a>
+        </li>
+        <li>
+          <a href="#"><i class="fa fa-facebook-square fa-2x"></i></a>
+        </li>
+        <li>
+          <a href="#"><i class="fa fa-snapchat-square fa-2x"></i></a>
+        </li>
+      </ul>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.2.24/jquery.autocomplete.min.js"></script>
     <script src="assets/countries.js"></script>
-    <script src="assets/iso3.js"></script>
-    <script src="assets/main.js"></script>
+
+    <script src="./assets/main.js"></script>
   </body>
 </html>
