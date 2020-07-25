@@ -102,13 +102,15 @@ $(() => {
 
   const search = (searchQuery) => {
     const addSection = (id, title, content, icon) => {
-      $(id).html(
-        `<h3><i aria-hidden="true" class="fa ${icon} fa-4"></i> ${title}</h3><hr/><p>${
-          content.trim().length > 0
-            ? newLine(content)
-            : "No information available"
-        }</p>`
-      );
+      content = `<h3><i aria-hidden="true" class="fa ${icon} fa-4"></i> ${title}</h3><hr/><p>${
+        content.trim().length > 0
+          ? newLine(content)
+          : "No information available"
+      }</p>`;
+
+      content = content.replace(/\*\*\*\*\*(.*?):<br>/gm, "<h3>$1</h3><hr/>");
+
+      $(id).html(content);
     };
     $.post(SEARCH_ENDPOINT, { search: searchQuery }).done((data) => {
       if (!data.travel) {

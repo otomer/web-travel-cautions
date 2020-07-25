@@ -2,16 +2,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const secure = require("express-force-https");
 import logger = require("morgan");
-var fs = require("fs");
-const csv = require("csvtojson");
-var cors = require("cors");
+const cors = require("cors");
 const getCountryISO3 = require("country-iso-2-to-3");
 
 import { Request, Response } from "express";
 
 import axios from "axios";
-
-import e = require("express");
+import utils from "./utils";
 
 /**
  * Initialization
@@ -25,12 +22,12 @@ const config = {
  * Express Configurations
  */
 const app = express(); // Create global app object
-app.use(secure);
+app.use(secure); //Force https
 app.use(logger("dev"));
 app.use(express.static("public")); // Static files configuration
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json()); // Support JSON bodies
-app.use(cors());
+app.use(cors()); // Enable CORS
 
 /**
  * Express Routes
@@ -50,26 +47,6 @@ const TravelRestrictionsByCountry =
 const AirlineRestrictionsInfo =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxATUFm0tR6Vqq-UAOuqQ-BoQDvYYEe-BmJ20s50yBKDHEifGofP2P1LJ4jWFIu0Pb_4kRhQeyhHmn/pub?gid=646351539&single=true&output=csv";
 const TravelAdvisoryRiskLevel = "https://www.travel-advisory.info/api";
-
-const saveDataToFile = (filePath: String, data: any, cb: Function) => {
-  const isCsv = filePath.endsWith(".csv");
-  fs.writeFile(
-    filePath,
-    isCsv ? data : JSON.stringify(data),
-    "utf8",
-    (err: any) => {
-      if (err) {
-        return console.log(err);
-      } else {
-        if (isCsv) {
-          csv().fromFile(filePath).then(cb);
-        } else {
-          cb(data);
-        }
-      }
-    }
-  );
-};
 
 const collectData = (
   dataType: string,
@@ -101,25 +78,36 @@ function loadRestrictionsData() {
       const airlineResponse = responseArr[1];
       const travelAdvisoryResponse = responseArr[2];
 
-      saveDataToFile("travel.csv", travelResponse.data, (restrictions: any) => {
-        restrictions.forEach((v: any) => {
-          restrictionsData.countries.push(v.adm0_name);
-          restrictionsData.iso3.push(v.iso3);
-          collectData("restrictions", "name", "adm0_name", v);
-          collectData("restrictions", "iso3", "iso3", v);
-        });
-        restrictionsData.countries.sort();
-        restrictionsData.iso3.sort();
-      });
+      utils.saveDataToFile(
+        "travel.csv",
+        travelResponse.data,
+        (restrictions: any) => {
+          restrictions.forEach((v: any) => {
+            restrictionsData.countries.push({
+              iso3: v.iso3,
+              name: v.adm0_name,
+            });
+            restrictionsData.iso3.push(v.iso3);
+            collectData("restrictions", "name", "adm0_name", v);
+            collectData("restrictions", "iso3", "iso3", v);
+          });
+          restrictionsData.countries.sort();
+          restrictionsData.iso3.sort();
+        }
+      );
 
-      saveDataToFile("airline.csv", airlineResponse.data, (airlines: any) => {
-        airlines.forEach((v: any) => {
-          collectData("airline", "name", "adm0_name", v);
-          collectData("airline", "iso3", "iso3", v);
-        });
-      });
+      utils.saveDataToFile(
+        "airline.csv",
+        airlineResponse.data,
+        (airlines: any) => {
+          airlines.forEach((v: any) => {
+            collectData("airline", "name", "adm0_name", v);
+            collectData("airline", "iso3", "iso3", v);
+          });
+        }
+      );
 
-      saveDataToFile(
+      utils.saveDataToFile(
         "advisory.json",
         travelAdvisoryResponse.data.data,
         (traveAdvisory: any) => {
@@ -129,9 +117,7 @@ function loadRestrictionsData() {
         }
       );
     })
-    .catch((error: Error) => {
-      console.error(error);
-    });
+    .catch((error: Error) => console.error(error));
 }
 loadRestrictionsData();
 
@@ -202,54 +188,3 @@ const server = app.listen(config.PORT, () =>
     `🚀 Server is listening on http://localhost:${server.address().port}`
   )
 );
-
-/* Travel Advisory Level - currently not in use */
-function saveEntries(entries: any, callback: Function) {
-  const outputPath = "./output.json";
-  const result = convertEntriesToResult(entries);
-  fs.writeFile(outputPath, JSON.stringify(result), "utf8", (err: any) => {
-    if (err) {
-      return console.log(err);
-    }
-    callback(result);
-  });
-}
-function extractTravelAdvisoryFromCountryTitle(str: string) {
-  const regex = /(.*) - Level (.*?): (.*)/gm;
-  let m;
-  let result;
-
-  while ((m = regex.exec(str)) !== null) {
-    if (m.index === regex.lastIndex) {
-      regex.lastIndex++;
-    }
-    result = { country: m[1], description: m[3], level: m[2] };
-  }
-
-  return result;
-}
-function convertEntriesToResult(entries: any) {
-  const result: any = {
-    countries: [],
-    countryToLevel: {},
-    items: {},
-    levelToCountries: { 1: [], 2: [], 3: [], 4: [] },
-  };
-  entries.forEach((v: any) => {
-    const countryFullTitle = v.title._text || v.title.text;
-    const match: any = extractTravelAdvisoryFromCountryTitle(countryFullTitle);
-    if (match && !result[match.country]) {
-      result.countryToLevel[match.country] = match.level;
-      result.items[match.country] = match;
-      result.levelToCountries[match.level].push(match.country);
-      result.countries.push(match.country);
-    }
-  });
-
-  Object.keys(result.levelToCountries).forEach(function (key) {
-    result.levelToCountries[key].sort();
-  });
-  result.countries.sort();
-
-  return result;
-}
