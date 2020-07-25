@@ -108,7 +108,7 @@ $(() => {
           : "No information available"
       }</p>`;
 
-      content = content.replace(/\*\*\*\*\*(.*?):<br>/gm, "<h3>$1</h3><hr/>");
+      content = content.replace(/\*\*\*\*\*(.*?):/gm, "<h3>$1</h3>");
 
       $(id).html(content);
     };
