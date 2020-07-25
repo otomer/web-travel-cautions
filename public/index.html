@@ -9,22 +9,16 @@
     />
     <meta
       content="Description"
-      name="Planning any trip starts with checking travel restrictions for
-              your destination!"
+      name="Planning any trip starts with checking travel restrictions for your destination! View all Travel restrictions and get risk level information"
     />
     <title>
-      Safe 2 Travel - Travel Restrictions Insights
+      Safe 2 Travel - Travel Restrictions Insights & Risk Level
     </title>
     <link href="./assets/general.css" rel="stylesheet" />
-    <!-- <link href="./assets/screen-loader.css" rel="stylesheet" /> -->
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"
       rel="stylesheet"
     />
-    <!-- <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css"
-      rel="stylesheet"
-    /> -->
     <link href="assets/main.css" rel="stylesheet" />
 
     <link
@@ -93,6 +87,7 @@
           <i aria-hidden="true" class="fa fa-times fa-4"></i>
         </div>
         <h2 id="modalTitle"></h2>
+        <div class="content-section" id="advisory-level"></div>
         <div class="content-section" id="self-quarantine"></div>
         <div class="content-section" id="certificate"></div>
         <div class="content-section" id="airlines"></div>
@@ -139,10 +134,10 @@
       <a id="restrictions" name="restrictions"></a>
       <h3 class="title">Travel Restrictions Insights</h3>
       <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat.
+        Planning any trip starts with checking travel restrictions and risk
+        level for your destination. It includes information about
+        self-quarantine needs, health certification requirement, airlines
+        information and both internal and international restrictions.
       </p>
       <hr />
 
@@ -151,20 +146,19 @@
           <i class="fa fa-certificate fa-4x"></i>
           <h4>Certificate Requirement</h4>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            COVID-19 negative certification might be required in some countries.
+            In such case, passengers must provide negative COVID-19 test results
+            before boarding. That's a crucial thing when planning your next
+            trip.
           </p>
         </li>
         <li>
           <i class="fa fa-medkit fa-4x"></i>
           <h4>Health Restrictions</h4>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            Passengers travelling to some countries may need to complete a
+            health declaration form, answer questions related to the presence of
+            symptoms which could be related to COVID-19 virus and more.
           </p>
         </li>
 
@@ -172,20 +166,17 @@
           <i class="fa fa-train fa-4x"></i>
           <h4>Transportation Limitations</h4>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            COVID-19 has affected transportation. You must be aware of the
+            transportation limits in each destination you plan to visit.
           </p>
         </li>
         <li>
           <i class="fa fa-plane fa-4x"></i>
           <h4>Airlines Information</h4>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
+            What is the response of airlines to COVID-19 situation? The COVID-19
+            pandemic has led to a massive disruption to flight operations, with
+            numerous airport restrictions.
           </p>
         </li>
       </ul>
@@ -251,11 +242,10 @@
       </ul>
     </footer>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script> -->
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.devbridge-autocomplete/1.2.24/jquery.autocomplete.min.js"></script>
     <script src="assets/countries.js"></script>
-
+    <script src="assets/risk-level.js"></script>
     <script src="./assets/main.js"></script>
   </body>
 </html>

@@ -57,24 +57,13 @@ $(() => {
   });
 
   textInput.autocomplete({
-    lookup: window.COUNTRIES,
+    lookup: Object.keys(window.COUNTRIES).sort(),
     lookupFilter: (suggestion, originalQuery, queryLowerCase) => {
       var re = new RegExp(
         "\\b" + $.Autocomplete.utils.escapeRegExChars(queryLowerCase),
         "gi"
       );
       return re.test(suggestion.value);
-    },
-    onHint: (hint) => {
-      $("#autocomplete-ajax-x").val(hint);
-    },
-    onInvalidateSelection: () => {
-      $("#selction-ajax").html("You selected: none");
-    },
-    onSelect: (suggestion) => {
-      $("#selction-ajax").html(
-        "You selected: " + suggestion.value + ", " + suggestion.data
-      );
     },
   });
 
@@ -120,6 +109,7 @@ $(() => {
 
       const travel = data.travel;
       let airlines = data.airlines;
+      const advisory = data.advisory && data.advisory.advisory;
 
       const convertStrToDate = (str) => {
         var dateParts = str.split(".");
@@ -135,7 +125,7 @@ $(() => {
       };
 
       let strAirlines = "";
-      if (airlines.length > 0) {
+      if (airlines && airlines.length > 0) {
         airlines = airlines.sort(function (a, b) {
           var dateA = new Date(convertStrToDate(a.published)),
             dateB = new Date(convertStrToDate(b.published));
@@ -152,7 +142,39 @@ $(() => {
         strAirlines = `<table>${strAirlines}</table>`;
       }
 
-      modalWindowTitle.html(`${searchQuery} Travel Restrictions`);
+      if (advisory) {
+        let level = "";
+        if (advisory.score <= 2.5) {
+          level = "1";
+        } else if (advisory.score <= 3.5) {
+          level = "2";
+        } else if (advisory.score <= 4.5) {
+          level = "3";
+        } else if (advisory.score <= 5) {
+          level = "4";
+        }
+        if (level) {
+          const riskLevel = window.RISK_LEVEL[level];
+          const $advisoryLevel = $("#advisory-level");
+          const inlineStyleFont = `style="color: ${riskLevel.color}"`;
+          const inlineStyleBackground = `style="background-color: ${riskLevel.color}"`;
+
+          $advisoryLevel.addClass("level-" + level);
+          $advisoryLevel.html(
+            `<h3 ${inlineStyleFont}><i aria-hidden="true" class="fa ${riskLevel.icon} fa-4"></i> ${riskLevel.title}</h3><hr ${inlineStyleBackground}/><p>
+            ${riskLevel.description}
+            <br/><br/>  
+            Risk Score (${advisory.score}/5)
+            </p>`
+          );
+        }
+      }
+      const country = window.COUNTRIES[searchQuery];
+      let img = "";
+      if (country.iso2 && country.iso2.indexOf(",") === -1) {
+        img = `<img src="https://www.travel-advisory.info/_resources/flags/h14/${country.iso2.toLowerCase()}.png"/>`;
+      }
+      modalWindowTitle.html(`${img} ${searchQuery} Travel Restrictions`);
       addSection(
         "#self-quarantine",
         "Self-Quarantine",

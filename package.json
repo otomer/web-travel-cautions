@@ -10,6 +10,7 @@
     "axios": "^0.19.2",
     "cors": "^2.8.5",
     "country-iso-2-to-3": "^1.1.0",
+    "country-iso-3-to-2": "^1.1.0",
     "csv": "^5.3.2",
     "csv-parse": "^4.10.1",
     "csvtojson": "^2.0.10",
