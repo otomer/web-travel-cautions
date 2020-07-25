@@ -15,6 +15,7 @@ $(() => {
   const noScrollClassName = "noscroll";
   const modalWindowTitleId = "#modalTitle";
   const searchHistoryClass = ".search-history";
+  const favDestinationsClass = ".fav-destinations";
 
   // DOM Elements
   const textInput = $(textInputId);
@@ -50,7 +51,7 @@ $(() => {
     search(countryName);
   });
 
-  $(".grid li").click((event) => {
+  $(`${favDestinationsClass} li`).click((event) => {
     const _this = $(event.currentTarget);
     const countryName = _this.find("h3").text();
     search(countryName);
