@@ -27,9 +27,9 @@ $(() => {
   const hRenderItem = (value) => {
     searchHistory.prepend(`<li>
       <span class="text">
-        <a href="#">${value}</a>
+        <a href="javascript:void(0);">${value}</a>
       </span>
-      <a class="link" href="#"></a>
+      <a class="link" href="javascript:void(0);"></a>
     </li>`);
   };
   const hFetch = (array) => {
@@ -173,23 +173,6 @@ $(() => {
         "fa-info-circle"
       );
 
-      // resultText.html(
-      //   `${travel.adm0_name} | ${travel.iso3} | published: ${travel.published}
-      //   <hr/>
-      //   ✈ Airlines information:
-      //   ${strAirlines}
-      //   <br/>
-      //   <a href="http://www.google.com/maps/place/${travel.Y},${
-      //     travel.X
-      //   },15z">Google Maps</a>
-      //   <hr/>
-      //   <a href="https://earth.google.com/web/search/${travel.Y},${
-      //     travel.X
-      //   }/">Google Earth<a>
-      //   <hr/>
-      //   ${newLine(travel.info)}
-      //   <hr/>${newLine(travel.optional2)}<hr/>${newLine(travel.optional3)}`
-      // );
       modalShow();
     });
   };
