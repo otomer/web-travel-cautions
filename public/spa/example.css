@@ -1,0 +1,12 @@
+body {
+  background: #f5f5f5;
+}
+
+.post-item {
+  background: white;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  height: 80px;
+  margin-top: 15px;
+  padding: 10px;
+}
