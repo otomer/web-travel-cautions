@@ -3,7 +3,6 @@ const bodyParser = require("body-parser");
 const secure = require("express-force-https");
 import logger = require("morgan");
 const cors = require("cors");
-const getCountryISO3 = require("country-iso-2-to-3");
 
 import { Request, Response } from "express";
 

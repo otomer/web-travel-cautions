@@ -31,4 +31,32 @@ window.RISK_LEVEL = {
     icon: "fa-exclamation-triangle",
     title: "Extreme Warning",
   },
+  scoreToLevel: (score) => {
+    let level = "";
+    if (score <= 2.5) {
+      level = "1";
+    } else if (score <= 3.5) {
+      level = "2";
+    } else if (score <= 4.5) {
+      level = "3";
+    } else if (score <= 5) {
+      level = "4";
+    }
+    return level;
+  },
+  generate: (level, score, simplified) => {
+    const riskLevel = window.RISK_LEVEL[level];
+    const inlineStyleFont = `style="color: ${riskLevel.color}"`;
+    const inlineStyleBackground = `style="background-color: ${riskLevel.color}"`;
+    const cls = "level-" + level;
+    return `<h3 ${inlineStyleFont} class="${cls}" title="${riskLevel.description}">
+              <i aria-hidden="true" class="fa ${riskLevel.icon} fa-4"></i> ${riskLevel.title}</h3>
+              ${simplified ? "" : "<hr " + inlineStyleBackground + "/><p>" + riskLevel.description + "<br/><br/>Risk Score (" + score + "/5)</p>"}
+              `;
+  },
+  generateAnchor: (level, score, name) => {
+    const riskLevel = window.RISK_LEVEL[level];
+    const inlineStyleFont = `style="color: ${riskLevel.color}"`;
+    return `<a ${inlineStyleFont} data-name="${name}" title="${riskLevel.description}">${name}</a>`;
+  }
 };

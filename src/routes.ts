@@ -12,6 +12,7 @@ const routes = {
   setup: (app: any) => {
     var restrictionsData: any = {
       advisory: { iso2: {} },
+      advisoryLevels: { 1: [], 2: [], 3: [], 4:[] },
       airline: { iso3: {}, name: {} },
       countries: {},
       iso3: [],
@@ -88,17 +89,39 @@ const routes = {
           utils.saveDataToFile(
             "advisory.json",
             travelAdvisoryResponse.data.data,
-            (traveAdvisory: any) => {
-              Object.keys(traveAdvisory).forEach((key) => {
+            (travelAdvisory: any) => {
+              const levels: { [key:number]:string[]; } = {
+                1: [],
+                2: [],
+                3: [],
+                4: [],
+              }
+              Object.keys(travelAdvisory).forEach((key) => {
                 collectData(
                   "advisory",
                   "iso2",
                   "iso_alpha2",
-                  traveAdvisory[key]
+                  travelAdvisory[key]
                 );
+
+                let score = travelAdvisory[key].advisory && travelAdvisory[key].advisory.score;
+                let iso2:string = travelAdvisory[key].iso_alpha2;
+                if (iso2) {
+                  if (score <= 2.5) {
+                    levels[1].push(iso2);
+                  } else if (score <= 3.5) {
+                    levels[2].push(iso2);
+                  } else if (score <= 4.5) {
+                    levels[3].push(iso2);
+                  } else if (score <= 5) {
+                    levels[4].push(iso2);
+                  }
+                }
+                restrictionsData.advisoryLevels = levels;
               });
             }
           );
+          
           console.log(new Date(), "Data fetched");
         })
         .catch((error: Error) => console.error(error));
@@ -110,19 +133,48 @@ const routes = {
     }, REFRESH_TIME);
     loadRestrictionsData();
 
-    function findCountry(propertyName: string, search: string) {
+    const findCountry = (propertyName: string, search: string) => {
       const data = getRestrictionsData();
       return {
         airlines: data.airline[propertyName][search],
         travel: data.restrictions[propertyName][search],
       };
     }
+
     app.get("/api/countries", (request: Request, response: Response) => {
       var serverData = getRestrictionsData();
       response.send({
         countries: serverData.countries,
         total: serverData.countries.length,
       });
+    });
+
+    app.post("/api/destinations", (request: Request, response: Response) => {
+      let result: any = { destinations: { requested: {}, random: {} } };
+      if (request.body.iso2) {
+        const iso2Array = request.body.iso2.toUpperCase().split(",");
+        
+        iso2Array.forEach((v: any) => {
+          const advisoryInfo = restrictionsData.advisory.iso2[v];
+          result.destinations.requested[v] = advisoryInfo;
+        });
+
+        if (restrictionsData.advisoryLevels) {
+          const randomByLevel = (level: number) => {
+            const randomIso2 = restrictionsData.advisoryLevels[level][Math.floor(Math.random() * restrictionsData.advisoryLevels[level].length)];
+            return restrictionsData.advisory.iso2[randomIso2];
+          }
+         
+          result.destinations.random = {
+            1: randomByLevel(1),
+            2: randomByLevel(2),
+            3: randomByLevel(3),
+            4: randomByLevel(4),
+          }
+        }
+      }
+
+      response.send({ ...result });
     });
 
     app.get("/api/iso3", (request: Request, response: Response) => {
@@ -187,4 +239,5 @@ const routes = {
     });
   },
 };
+
 export default routes;

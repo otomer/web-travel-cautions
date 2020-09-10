@@ -2,6 +2,7 @@ const newLine = (text) => text.replace(/(?:\r\n|\r|\n)/g, "<br>");
 
 $(() => {
   const SEARCH_ENDPOINT = "/api/travel-cautions";
+  const DESTINATIONS_ENDPOINT = "/api/destinations";
   const SEARCH_HISTORY = ["Brazil", "China", "Israel"];
 
   // Selectors
@@ -16,6 +17,7 @@ $(() => {
   const modalWindowTitleId = "#modalTitle";
   const searchHistoryClass = ".search-history";
   const favDestinationsClass = ".fav-destinations";
+  const favDestinationsDescriptionClass = ".destinations-description";
 
   // DOM Elements
   const textInput = $(textInputId);
@@ -43,6 +45,50 @@ $(() => {
     hRenderItem(searchQuery);
   };
 
+  const destinationsIso2 = []
+  $(favDestinationsClass + ' h3').each(function (index) {
+    const iso2 = $(this).attr('data-iso2');
+    if (iso2) {
+      destinationsIso2.push(iso2);
+    }
+  });
+
+
+  if (destinationsIso2.length) {
+    $.post(DESTINATIONS_ENDPOINT, { iso2: destinationsIso2.join(",") }).done((data) => {
+      if (data && data.destinations && data.destinations) {
+        const dest = data && data.destinations && data.destinations;
+        if (dest.requested) {
+          Object.keys(dest.requested).forEach((key) => {
+            const domElement = $(favDestinationsClass + ' h3[data-iso2=' + key + ']');
+            if (domElement.length) {
+              const score = dest.requested[key].advisory.score;
+              const level = window.RISK_LEVEL.scoreToLevel(dest.requested[key].advisory.score);
+              const riskDomElement = window.RISK_LEVEL.generate(level, score, true);
+              domElement.html(domElement.text() + riskDomElement);
+            }
+          })
+        }
+        if (dest.random) {
+          const links = [];
+          Object.keys(dest.random).forEach((key) => {
+            const obj = dest.random[key];
+            links.push(window.RISK_LEVEL.generateAnchor(key, obj.advisory.score, obj.name))
+          });
+          $(favDestinationsDescriptionClass).append("<p>Check also: " + links.join(", ") + "</p>");
+          $(`${favDestinationsDescriptionClass} a`).click((event) => {
+            const _this = $(event.currentTarget);
+            const countryName = _this.attr('data-name');
+            search(countryName);
+          });
+        }
+
+      }
+
+    })
+  }
+
+  
   // Search History
   hFetch(SEARCH_HISTORY);
   $("body").on("click", ".search-history li", (event) => {
@@ -53,7 +99,7 @@ $(() => {
 
   $(`${favDestinationsClass} li`).click((event) => {
     const _this = $(event.currentTarget);
-    const countryName = _this.find("h3").text();
+    const countryName = _this.find("h3").attr('data-name');
     search(countryName);
   });
 
@@ -67,6 +113,7 @@ $(() => {
       return re.test(suggestion.value);
     },
   });
+  
 
   const modalHide = () => {
     $("body").removeClass(noScrollClassName);
@@ -144,30 +191,11 @@ $(() => {
       }
 
       if (advisory) {
-        let level = "";
-        if (advisory.score <= 2.5) {
-          level = "1";
-        } else if (advisory.score <= 3.5) {
-          level = "2";
-        } else if (advisory.score <= 4.5) {
-          level = "3";
-        } else if (advisory.score <= 5) {
-          level = "4";
-        }
+        let level = window.RISK_LEVEL.scoreToLevel(advisory.score);
         if (level) {
-          const riskLevel = window.RISK_LEVEL[level];
+          const riskDomElement = window.RISK_LEVEL.generate(level, advisory.score);
           const $advisoryLevel = $("#advisory-level");
-          const inlineStyleFont = `style="color: ${riskLevel.color}"`;
-          const inlineStyleBackground = `style="background-color: ${riskLevel.color}"`;
-
-          $advisoryLevel.addClass("level-" + level);
-          $advisoryLevel.html(
-            `<h3 ${inlineStyleFont}><i aria-hidden="true" class="fa ${riskLevel.icon} fa-4"></i> ${riskLevel.title}</h3><hr ${inlineStyleBackground}/><p>
-            ${riskLevel.description}
-            <br/><br/>  
-            Risk Score (${advisory.score}/5)
-            </p>`
-          );
+          $advisoryLevel.html(riskDomElement);
         }
       }
       const country = window.COUNTRIES[searchQuery];
