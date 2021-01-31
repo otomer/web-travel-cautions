@@ -42,12 +42,6 @@ app.get("/config", (req: Request, res: Response) =>
 app.get("/", (req: Request, res: Response) =>
   res.sendFile("index.html", { root: "public" })
 );
-app.get("/spa", (req: Request, res: Response) =>
-  res.sendFile("spa/example.html", { root: "public" })
-);
-app.get("/posts/post3", (req: Request, res: Response) =>
-  res.sendFile("spa/post3.html", { root: "public" })
-);
 app.get("*", function (req: Request, res: Response) {
   res.status(404);
   res.sendFile("404.html", { root: "public" });
