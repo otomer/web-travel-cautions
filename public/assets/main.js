@@ -3,6 +3,7 @@ const newLine = (text) => text.replace(/(?:\r\n|\r|\n)/g, "<br>");
 $(() => {
   const SEARCH_ENDPOINT = "/api/travel-cautions";
   const DESTINATIONS_ENDPOINT = "/api/destinations";
+  const COUNTRIES_ENDPOINT = "/api/countries";
   const SEARCH_HISTORY = ["Brazil", "China", "Israel"];
 
   // Selectors
@@ -27,6 +28,33 @@ $(() => {
   const modalWindowTitle = $(modalWindowTitleId);
   const searchHistory = $(searchHistoryClass);
 
+  let countriesLoaded = false;
+
+  function setIntervalX(callback, delay, repetitions) {
+    var x = 0;
+    var intervalID = window.setInterval(function () {
+      if (++x === repetitions || countriesLoaded) {
+        window.clearInterval(intervalID);
+      } else {
+        callback();
+      }
+    }, delay);
+  }
+
+  setIntervalX(
+    function () {
+      $.get(COUNTRIES_ENDPOINT, function (data) {
+        if (data && Object.keys(data).length > 0) {
+          countriesLoaded = true;
+          console.log("Refresh countries list");
+          window.COUNTRIES = data.countries;
+        }
+      });
+    },
+    1000,
+    5
+  );
+
   const hRenderItem = (value) => {
     searchHistory.prepend(`<li>
       <span class="text">
@@ -45,50 +73,64 @@ $(() => {
     hRenderItem(searchQuery);
   };
 
-  const destinationsIso2 = []
-  $(favDestinationsClass + ' h3').each(function (index) {
-    const iso2 = $(this).attr('data-iso2');
+  const destinationsIso2 = [];
+  $(favDestinationsClass + " h3").each(function (index) {
+    const iso2 = $(this).attr("data-iso2");
     if (iso2) {
       destinationsIso2.push(iso2);
     }
   });
 
-
   if (destinationsIso2.length) {
-    $.post(DESTINATIONS_ENDPOINT, { iso2: destinationsIso2.join(",") }).done((data) => {
-      if (data && data.destinations && data.destinations) {
-        const dest = data && data.destinations && data.destinations;
-        if (dest.requested) {
-          Object.keys(dest.requested).forEach((key) => {
-            const domElement = $(favDestinationsClass + ' h3[data-iso2=' + key + ']');
-            if (domElement.length) {
-              const score = dest.requested[key].advisory.score;
-              const level = window.RISK_LEVEL.scoreToLevel(dest.requested[key].advisory.score);
-              const riskDomElement = window.RISK_LEVEL.generate(level, score, true);
-              domElement.html(domElement.text() + riskDomElement);
-            }
-          })
+    $.post(DESTINATIONS_ENDPOINT, { iso2: destinationsIso2.join(",") }).done(
+      (data) => {
+        if (data && data.destinations && data.destinations) {
+          const dest = data && data.destinations && data.destinations;
+          if (dest.requested) {
+            Object.keys(dest.requested).forEach((key) => {
+              const domElement = $(
+                favDestinationsClass + " h3[data-iso2=" + key + "]"
+              );
+              if (domElement.length) {
+                const score = dest.requested[key].advisory.score;
+                const level = window.RISK_LEVEL.scoreToLevel(
+                  dest.requested[key].advisory.score
+                );
+                const riskDomElement = window.RISK_LEVEL.generate(
+                  level,
+                  score,
+                  true
+                );
+                domElement.html(domElement.text() + riskDomElement);
+              }
+            });
+          }
+          if (dest.random) {
+            const links = [];
+            Object.keys(dest.random).forEach((key) => {
+              const obj = dest.random[key];
+              links.push(
+                window.RISK_LEVEL.generateAnchor(
+                  key,
+                  obj.advisory.score,
+                  obj.name
+                )
+              );
+            });
+            $(favDestinationsDescriptionClass).append(
+              "<p>Check also: " + links.join(", ") + "</p>"
+            );
+            $(`${favDestinationsDescriptionClass} a`).click((event) => {
+              const _this = $(event.currentTarget);
+              const countryName = _this.attr("data-name");
+              search(countryName);
+            });
+          }
         }
-        if (dest.random) {
-          const links = [];
-          Object.keys(dest.random).forEach((key) => {
-            const obj = dest.random[key];
-            links.push(window.RISK_LEVEL.generateAnchor(key, obj.advisory.score, obj.name))
-          });
-          $(favDestinationsDescriptionClass).append("<p>Check also: " + links.join(", ") + "</p>");
-          $(`${favDestinationsDescriptionClass} a`).click((event) => {
-            const _this = $(event.currentTarget);
-            const countryName = _this.attr('data-name');
-            search(countryName);
-          });
-        }
-
       }
-
-    })
+    );
   }
 
-  
   // Search History
   hFetch(SEARCH_HISTORY);
   $("body").on("click", ".search-history li", (event) => {
@@ -99,7 +141,7 @@ $(() => {
 
   $(`${favDestinationsClass} li`).click((event) => {
     const _this = $(event.currentTarget);
-    const countryName = _this.find("h3").attr('data-name');
+    const countryName = _this.find("h3").attr("data-name");
     search(countryName);
   });
 
@@ -113,7 +155,6 @@ $(() => {
       return re.test(suggestion.value);
     },
   });
-  
 
   const modalHide = () => {
     $("body").removeClass(noScrollClassName);
@@ -193,7 +234,10 @@ $(() => {
       if (advisory) {
         let level = window.RISK_LEVEL.scoreToLevel(advisory.score);
         if (level) {
-          const riskDomElement = window.RISK_LEVEL.generate(level, advisory.score);
+          const riskDomElement = window.RISK_LEVEL.generate(
+            level,
+            advisory.score
+          );
           const $advisoryLevel = $("#advisory-level");
           $advisoryLevel.html(riskDomElement);
         }

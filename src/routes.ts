@@ -12,7 +12,7 @@ const routes = {
   setup: (app: any) => {
     var restrictionsData: any = {
       advisory: { iso2: {} },
-      advisoryLevels: { 1: [], 2: [], 3: [], 4:[] },
+      advisoryLevels: { 1: [], 2: [], 3: [], 4: [] },
       airline: { iso3: {}, name: {} },
       countries: {},
       iso3: [],
@@ -90,12 +90,12 @@ const routes = {
             "advisory.json",
             travelAdvisoryResponse.data.data,
             (travelAdvisory: any) => {
-              const levels: { [key:number]:string[]; } = {
+              const levels: { [key: number]: string[] } = {
                 1: [],
                 2: [],
                 3: [],
                 4: [],
-              }
+              };
               Object.keys(travelAdvisory).forEach((key) => {
                 collectData(
                   "advisory",
@@ -104,8 +104,10 @@ const routes = {
                   travelAdvisory[key]
                 );
 
-                let score = travelAdvisory[key].advisory && travelAdvisory[key].advisory.score;
-                let iso2:string = travelAdvisory[key].iso_alpha2;
+                let score =
+                  travelAdvisory[key].advisory &&
+                  travelAdvisory[key].advisory.score;
+                let iso2: string = travelAdvisory[key].iso_alpha2;
                 if (iso2) {
                   if (score <= 2.5) {
                     levels[1].push(iso2);
@@ -121,7 +123,7 @@ const routes = {
               });
             }
           );
-          
+
           console.log(new Date(), "Data fetched");
         })
         .catch((error: Error) => console.error(error));
@@ -139,7 +141,7 @@ const routes = {
         airlines: data.airline[propertyName][search],
         travel: data.restrictions[propertyName][search],
       };
-    }
+    };
 
     app.get("/api/countries", (request: Request, response: Response) => {
       var serverData = getRestrictionsData();
@@ -153,7 +155,7 @@ const routes = {
       let result: any = { destinations: { requested: {}, random: {} } };
       if (request.body.iso2) {
         const iso2Array = request.body.iso2.toUpperCase().split(",");
-        
+
         iso2Array.forEach((v: any) => {
           const advisoryInfo = restrictionsData.advisory.iso2[v];
           result.destinations.requested[v] = advisoryInfo;
@@ -161,16 +163,21 @@ const routes = {
 
         if (restrictionsData.advisoryLevels) {
           const randomByLevel = (level: number) => {
-            const randomIso2 = restrictionsData.advisoryLevels[level][Math.floor(Math.random() * restrictionsData.advisoryLevels[level].length)];
+            const randomIso2 =
+              restrictionsData.advisoryLevels[level][
+                Math.floor(
+                  Math.random() * restrictionsData.advisoryLevels[level].length
+                )
+              ];
             return restrictionsData.advisory.iso2[randomIso2];
-          }
-         
+          };
+
           result.destinations.random = {
             1: randomByLevel(1),
             2: randomByLevel(2),
             3: randomByLevel(3),
             4: randomByLevel(4),
-          }
+          };
         }
       }
 
